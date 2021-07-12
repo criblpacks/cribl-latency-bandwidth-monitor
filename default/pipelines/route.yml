@@ -1,0 +1,30 @@
+id: default
+groups: {}
+routes:
+  - id: YmRxnc
+    name: mtr
+    final: true
+    disabled: false
+    pipeline: mtr
+    description: Output from scope'd mtr
+    clones: []
+    filter: proc=='mtr'
+    output: default
+  - id: oJZ0zb
+    name: speedtest
+    final: true
+    disabled: false
+    pipeline: speedtest
+    description: ""
+    clones: []
+    filter: proc=='speedtest'
+    output: default
+  - id: default
+    name: default
+    final: true
+    disabled: false
+    pipeline: devnull
+    description: ""
+    clones: []
+    filter: "true"
+    output: default

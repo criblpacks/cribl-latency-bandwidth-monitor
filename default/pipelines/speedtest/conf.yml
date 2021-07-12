@@ -1,0 +1,51 @@
+output: default
+groups: {}
+asyncFuncTimeout: 1000
+functions:
+  - id: serde
+    filter: proc=='speedtest'
+    disabled: null
+    conf:
+      mode: extract
+      type: json
+      srcField: _raw
+    description: Parse Speedtest JSON Output
+  - id: eval
+    filter: proc=='speedtest' && servers && servers[0]
+    disabled: null
+    conf:
+      add:
+        - name: speedtest_upload
+          value: servers[0].ul_speed
+        - name: speedtest_download
+          value: servers[0].dl_speed
+        - name: speedtest_ping
+          value: servers[0].latency/1000000
+      remove:
+        - servers
+        - timestamp
+        - user_info
+        - pid
+    description: Reshape event
+  - id: publish_metrics
+    filter: proc=='speedtest'
+    disabled: null
+    conf:
+      overwrite: true
+      dimensions:
+        - "!_*"
+        - "*"
+      removeMetrics: []
+      removeDimensions: []
+      fields:
+        - metricType: gauge
+          inFieldName: speedtest_upload
+          outFieldExpr: null
+        - metricType: gauge
+          inFieldName: speedtest_download
+          outFieldExpr: null
+        - metricType: gauge
+          inFieldName: speedtest_ping
+          outFieldExpr: null
+    description: Publish Metrics
+description: Reshape speedtest output

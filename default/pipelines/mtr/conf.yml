@@ -1,0 +1,96 @@
+output: default
+groups: {}
+asyncFuncTimeout: 1000
+functions:
+  - id: serde
+    filter: proc=='mtr' && _raw.includes('"report"')
+    disabled: null
+    conf:
+      mode: extract
+      type: json
+      srcField: _raw
+    description: Parse MTR output
+  - id: unroll
+    filter: report.hubs
+    disabled: false
+    conf:
+      srcExpr: report.hubs
+      dstField: mtr
+    description: Create a new event for every hub
+  - id: eval
+    filter: mtr
+    disabled: null
+    conf:
+      add:
+        - name: mtr.LossPerc
+          value: __e['mtr']['Loss%']
+        - name: mtr_dst
+          value: report.mtr.dst
+        - name: mtr_psize
+          value: report.mtr.psize
+        - name: mtr_tests
+          value: report.mtr.tests
+        - name: mtr_host
+          value: mtr.host
+        - name: mtr_hop
+          value: mtr.count
+      remove:
+        - report
+        - _raw
+        - __e['mtr']['Loss%']
+        - mtr.host
+        - mtr.count
+        - pid
+    description: Reshape and remove excess
+  - id: rename
+    filter: mtr
+    disabled: null
+    conf:
+      wildcardDepth: 5
+      renameExpr: name.toLowerCase()
+      baseFields:
+        - mtr
+    description: Lower case field names
+  - id: flatten
+    filter: mtr
+    disabled: false
+    conf:
+      fields:
+        - mtr
+      prefix: ""
+      depth: 5
+      delimiter: _
+  - id: publish_metrics
+    filter: mtr_avg
+    disabled: false
+    conf:
+      overwrite: false
+      dimensions:
+        - "!_*"
+        - "*"
+      removeMetrics: []
+      removeDimensions: []
+      fields:
+        - metricType: gauge
+          inFieldName: mtr_avg
+          outFieldExpr: null
+        - metricType: gauge
+          inFieldName: mtr_best
+          outFieldExpr: null
+        - metricType: gauge
+          inFieldName: mtr_last
+          outFieldExpr: null
+        - metricType: gauge
+          inFieldName: mtr_lossperc
+          outFieldExpr: null
+        - metricType: gauge
+          inFieldName: mtr_snt
+          outFieldExpr: null
+        - metricType: gauge
+          inFieldName: mtr_stdev
+          outFieldExpr: null
+        - metricType: gauge
+          inFieldName: mtr_wrst
+          outFieldExpr: null
+    description: Publish mtr fields as metrics
+description: Reshape the output of mtr to metrics

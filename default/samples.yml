@@ -1,0 +1,17 @@
+GQBeXQ:
+  sampleName: mtr_scope.log
+  description: mtr scope'd
+  created: 1621809830829
+  size: 28546
+  numEvents: 37
+jcsdlT:
+  sampleName: scope_speedtest_console.log
+  description: Scope'd speedtest console output
+  created: 1625526592913
+  size: 1035
+  numEvents: 1
+4MWrWY:
+  sampleName: mtr_scope_console.log
+  created: 1625971221568
+  size: 4479
+  numEvents: 1
